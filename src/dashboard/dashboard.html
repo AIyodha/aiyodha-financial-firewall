@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIYODHA CFO Dashboard</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .card {
+            background-color: #2d2d2d;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 10px;
+            width: 300px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #4caf50;
+        }
+
+        .metric {
+            font-size: 2em;
+            margin: 10px 0;
+        }
+
+        .status-active {
+            color: #4caf50;
+            font-weight: bold;
+        }
+
+        .status-killed {
+            color: #f44336;
+            font-weight: bold;
+        }
+
+        button {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #d32f2f;
+        }
+
+        button:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🛡️ AIYODHA Firewall</h1>
+
+    <div class="card">
+        <h3>Agent_007 Status</h3>
+        <div id="status" class="status-active">LOADING...</div>
+    </div>
+
+    <div class="card">
+        <h3>Budget</h3>
+        <div id="budget" class="metric">...</div>
+    </div>
+
+    <div class="card">
+        <h3>Spent</h3>
+        <div id="spent" class="metric">...</div>
+    </div>
+
+    <button id="killBtn" onclick="killAgent()">🚨 EMERGENCY KILL SWITCH</button>
+
+    <script>
+        const AGENT_ID = "Agent_007";
+        const API_URL = ""; // Relative path
+
+        async function updateStatus() {
+            try {
+                const response = await fetch(`${API_URL}/status/${AGENT_ID}`);
+                const data = await response.json();
+
+                document.getElementById('budget').innerText = `$${data.budget.toFixed(2)}`;
+                document.getElementById('spent').innerText = `$${data.spent.toFixed(4)}`;
+
+                const statusEl = document.getElementById('status');
+                if (data.killed) {
+                    statusEl.innerText = "KILLED 💀";
+                    statusEl.className = "status-killed";
+                    document.getElementById('killBtn').disabled = true;
+                    document.getElementById('killBtn').innerText = "AGENT KILLED";
+                } else {
+                    statusEl.innerText = "ACTIVE 🟢";
+                    statusEl.className = "status-active";
+                }
+            } catch (e) {
+                console.error("Error fetching status", e);
+            }
+        }
+
+        async function killAgent() {
+            const btn = document.getElementById('killBtn');
+            btn.innerText = "SENDING KILL SIGNAL...";
+            btn.disabled = true;
+
+            try {
+                const response = await fetch(`${API_URL}/admin/kill_switch?agent_id=${AGENT_ID}`, { method: 'POST' });
+                if (response.ok) {
+                    // alert("Kill signal sent!"); // Removed alert to avoid blocking
+                    updateStatus();
+                } else {
+                    alert("Failed to send kill signal");
+                    btn.innerText = "🚨 EMERGENCY KILL SWITCH";
+                    btn.disabled = false;
+                }
+            } catch (e) {
+                alert("Error sending kill signal");
+                btn.innerText = "🚨 EMERGENCY KILL SWITCH";
+                btn.disabled = false;
+            }
+        }
+
+        setInterval(updateStatus, 500);
+        updateStatus();
+    </script>
+</body>
+
+</html>
