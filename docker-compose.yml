@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  aiyodha:
+    build: .
+    ports:
+      - "8001:8001"
+      - "8501:8501"
+    volumes:
+      - ./aiyodha.db:/app/aiyodha.db
+    environment:
+      - PORT=8001
+      - HOST=0.0.0.0
+      - POLICY_ENGINE_URL=http://localhost:8001
+      - DEFAULT_BUDGET=1.0
